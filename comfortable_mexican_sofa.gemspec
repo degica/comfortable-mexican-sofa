@@ -4,14 +4,14 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{comfortable_mexican_sofa}
-  s.version = "1.4.7"
+  s.name = "comfortable_mexican_sofa"
+  s.version = "1.5.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Oleg Khabarov", "The Working Group Inc"]
-  s.date = %q{2011-08-31}
-  s.description = %q{}
-  s.email = %q{oleg@theworkinggroup.ca}
+  s.date = "2011-09-28"
+  s.description = ""
+  s.email = "oleg@theworkinggroup.ca"
   s.extra_rdoc_files = [
     "LICENSE",
     "README.md"
@@ -48,6 +48,7 @@ Gem::Specification.new do |s|
     "app/assets/javascripts/comfortable_mexican_sofa/codemirror/codemirror.js",
     "app/assets/javascripts/comfortable_mexican_sofa/jquery.js",
     "app/assets/javascripts/comfortable_mexican_sofa/jquery_ui.js",
+    "app/assets/javascripts/comfortable_mexican_sofa/jquery_ui_timepicker.js",
     "app/assets/javascripts/comfortable_mexican_sofa/rails.js",
     "app/assets/javascripts/comfortable_mexican_sofa/wymeditor/iframe/default/lbl-blockquote.png",
     "app/assets/javascripts/comfortable_mexican_sofa/wymeditor/iframe/default/lbl-h1.png",
@@ -61,6 +62,7 @@ Gem::Specification.new do |s|
     "app/assets/javascripts/comfortable_mexican_sofa/wymeditor/iframe/default/wymiframe.css",
     "app/assets/javascripts/comfortable_mexican_sofa/wymeditor/iframe/default/wymiframe.html",
     "app/assets/javascripts/comfortable_mexican_sofa/wymeditor/jquery.wymeditor.cms.js",
+    "app/assets/javascripts/comfortable_mexican_sofa/wymeditor/jquery.wymeditor.embed.js",
     "app/assets/javascripts/comfortable_mexican_sofa/wymeditor/jquery.wymeditor.pack.js",
     "app/assets/javascripts/comfortable_mexican_sofa/wymeditor/lang/bg.js",
     "app/assets/javascripts/comfortable_mexican_sofa/wymeditor/lang/ca.js",
@@ -127,6 +129,7 @@ Gem::Specification.new do |s|
     "app/views/cms_admin/files/_file.html.erb",
     "app/views/cms_admin/files/_form.html.erb",
     "app/views/cms_admin/files/_index.html.erb",
+    "app/views/cms_admin/files/_page_form.html.erb",
     "app/views/cms_admin/files/create.js.erb",
     "app/views/cms_admin/files/destroy.js.erb",
     "app/views/cms_admin/files/edit.html.erb",
@@ -195,11 +198,10 @@ Gem::Specification.new do |s|
     "db/migrate/upgrades/03_upgrade_to_1_2_0.rb",
     "db/migrate/upgrades/04_upgrade_to_1_3_0.rb",
     "db/migrate/upgrades/05_upgrade_to_1_4_0.rb",
+    "db/migrate/upgrades/06_upgrade_to_1_5_0.rb",
     "db/seeds.rb",
-    "doc/page_editing.png",
+    "doc/preview.png",
     "doc/sofa.png",
-    "gemfiles/Gemfile.rails-3.0.x",
-    "gemfiles/Gemfile.rails-3.1.x",
     "lib/comfortable_mexican_sofa.rb",
     "lib/comfortable_mexican_sofa/authentication/dummy_auth.rb",
     "lib/comfortable_mexican_sofa/authentication/http_auth.rb",
@@ -216,6 +218,7 @@ Gem::Specification.new do |s|
     "lib/comfortable_mexican_sofa/form_builder.rb",
     "lib/comfortable_mexican_sofa/tag.rb",
     "lib/comfortable_mexican_sofa/tags/asset.rb",
+    "lib/comfortable_mexican_sofa/tags/collection.rb",
     "lib/comfortable_mexican_sofa/tags/field_datetime.rb",
     "lib/comfortable_mexican_sofa/tags/field_integer.rb",
     "lib/comfortable_mexican_sofa/tags/field_string.rb",
@@ -223,6 +226,8 @@ Gem::Specification.new do |s|
     "lib/comfortable_mexican_sofa/tags/file.rb",
     "lib/comfortable_mexican_sofa/tags/helper.rb",
     "lib/comfortable_mexican_sofa/tags/page_datetime.rb",
+    "lib/comfortable_mexican_sofa/tags/page_file.rb",
+    "lib/comfortable_mexican_sofa/tags/page_files.rb",
     "lib/comfortable_mexican_sofa/tags/page_integer.rb",
     "lib/comfortable_mexican_sofa/tags/page_rich_text.rb",
     "lib/comfortable_mexican_sofa/tags/page_string.rb",
@@ -258,6 +263,8 @@ Gem::Specification.new do |s|
     "test/functional/cms_admin/sites_controller_test.rb",
     "test/functional/cms_admin/snippets_controller_test.rb",
     "test/functional/cms_content_controller_test.rb",
+    "test/gemfiles/Gemfile.rails-3.0.x",
+    "test/gemfiles/Gemfile.rails-3.1.x",
     "test/integration/authentication_test.rb",
     "test/integration/fixtures_test.rb",
     "test/integration/mirrors_test.rb",
@@ -281,6 +288,7 @@ Gem::Specification.new do |s|
     "test/unit/revisions_test.rb",
     "test/unit/tag_test.rb",
     "test/unit/tags/asset_test.rb",
+    "test/unit/tags/collection_test.rb",
     "test/unit/tags/field_datetime_test.rb",
     "test/unit/tags/field_integer_test.rb",
     "test/unit/tags/field_string_test.rb",
@@ -288,35 +296,37 @@ Gem::Specification.new do |s|
     "test/unit/tags/file_test.rb",
     "test/unit/tags/helper_test.rb",
     "test/unit/tags/page_datetime_test.rb",
+    "test/unit/tags/page_file_test.rb",
+    "test/unit/tags/page_files_test.rb",
     "test/unit/tags/page_integer_test.rb",
-    "test/unit/tags/page_rich_text.rb",
+    "test/unit/tags/page_rich_text_test.rb",
     "test/unit/tags/page_string_test.rb",
     "test/unit/tags/page_text_test.rb",
     "test/unit/tags/partial_test.rb",
     "test/unit/tags/snippet_test.rb",
     "test/unit/view_methods_test.rb"
   ]
-  s.homepage = %q{http://github.com/twg/comfortable-mexican-sofa}
+  s.homepage = "http://github.com/twg/comfortable-mexican-sofa"
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.6.2}
-  s.summary = %q{ComfortableMexicanSofa is a powerful CMS Engine for Ruby on Rails 3 applications}
+  s.rubygems_version = "1.8.10"
+  s.summary = "ComfortableMexicanSofa is a powerful CMS Engine for Ruby on Rails 3 applications"
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<rails>, [">= 3.0.0"])
-      s.add_runtime_dependency(%q<active_link_to>, [">= 1.0.0"])
-      s.add_runtime_dependency(%q<paperclip>, [">= 2.3.14"])
+      s.add_runtime_dependency(%q<active_link_to>, ["~> 1.0.0"])
+      s.add_runtime_dependency(%q<paperclip>, ["~> 2.4.2"])
     else
       s.add_dependency(%q<rails>, [">= 3.0.0"])
-      s.add_dependency(%q<active_link_to>, [">= 1.0.0"])
-      s.add_dependency(%q<paperclip>, [">= 2.3.14"])
+      s.add_dependency(%q<active_link_to>, ["~> 1.0.0"])
+      s.add_dependency(%q<paperclip>, ["~> 2.4.2"])
     end
   else
     s.add_dependency(%q<rails>, [">= 3.0.0"])
-    s.add_dependency(%q<active_link_to>, [">= 1.0.0"])
-    s.add_dependency(%q<paperclip>, [">= 2.3.14"])
+    s.add_dependency(%q<active_link_to>, ["~> 1.0.0"])
+    s.add_dependency(%q<paperclip>, ["~> 2.4.2"])
   end
 end
 

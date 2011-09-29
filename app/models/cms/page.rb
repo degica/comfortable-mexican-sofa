@@ -1,8 +1,6 @@
 class Cms::Page < ActiveRecord::Base
   
-  if ComfortableMexicanSofa.config.database_config && !Rails.env.test?
-    establish_connection "#{ComfortableMexicanSofa.config.database_config}_#{Rails.env}"
-  end
+  ComfortableMexicanSofa.establish_connection(self)
     
   set_table_name :cms_pages
   
@@ -27,8 +25,7 @@ class Cms::Page < ActiveRecord::Base
   before_validation :assigns_label,
                     :assign_parent,
                     :assign_full_path
-  before_validation :assign_position,
-                    :on => :create
+  before_create :assign_position
   before_save :set_cached_content
   after_save  :sync_child_pages
   
@@ -87,6 +84,7 @@ class Cms::Page < ActiveRecord::Base
   #     { :label => 'block_2', :content => 'block content' }
   #   ]
   def blocks_attributes=(block_hashes = [])
+    block_hashes = block_hashes.values if block_hashes.is_a?(Hash)
     block_hashes.each do |block_hash|
       block_hash.symbolize_keys! unless block_hash.is_a?(HashWithIndifferentAccess)
       block = self.blocks.detect{|b| b.label == block_hash[:label]} || self.blocks.build(:label => block_hash[:label])
@@ -98,11 +96,17 @@ class Cms::Page < ActiveRecord::Base
   # Processing content will return rendered content and will populate 
   # self.cms_tags with instances of CmsTag
   def content(force_reload = false)
-    @content = read_attribute(:content)
-    @content = nil if force_reload
+    @content = force_reload ? nil : read_attribute(:content)
     @content ||= begin
       self.tags = [] # resetting
-      layout ? ComfortableMexicanSofa::Tag.process_content(self, layout.merged_content) : ''
+      if layout
+        ComfortableMexicanSofa::Tag.process_content(
+          self,
+          ComfortableMexicanSofa::Tag.sanitize_irb(layout.merged_content)
+        )
+      else
+        ''
+      end
     end
   end
   

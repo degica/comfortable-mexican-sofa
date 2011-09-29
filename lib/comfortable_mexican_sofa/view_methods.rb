@@ -10,11 +10,6 @@ module ComfortableMexicanSofa::ViewMethods
     content_tag(:span, *args)
   end
   
-  # Rails 3.0 doesn't have this helper defined
-  def datetime_field_tag(name, value = nil, options = {})
-    text_field_tag(name, value, options.stringify_keys.update('type' => 'datetime'))
-  end
-  
   # Injects some content somewhere inside cms admin area
   def cms_hook(name, options = {})
     ComfortableMexicanSofa::ViewHooks.render(name, self, options)
@@ -23,8 +18,13 @@ module ComfortableMexicanSofa::ViewMethods
   # Content of a snippet. Example:
   #   cms_snippet_content(:my_snippet)
   def cms_snippet_content(snippet_slug, cms_site = nil)
-    return '' unless cms_site ||= (@cms_site || Cms::Site.find_by_hostname(request.host.downcase))
-    return '' unless snippet = cms_site.snippets.find_by_slug(snippet_slug)
+    return '' unless cms_site ||= (@cms_site || Cms::Site.find_site(request.host.downcase, request.fullpath))
+    case snippet_slug
+    when Cms::Snippet
+      snippet = snippet_slug
+    else
+      return '' unless snippet = cms_site.snippets.find_by_slug(snippet_slug)
+    end
     render :inline => ComfortableMexicanSofa::Tag.process_content(Cms::Page.new, snippet.content)
   end
   

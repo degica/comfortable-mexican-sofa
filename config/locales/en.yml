@@ -101,6 +101,7 @@ en:
       index:
         title: Sites
         new_link: Create New Site
+        select: Select Site
         edit: Edit
         delete: Delete
         are_you_sure: Are you sure you want to delete this site?
@@ -196,6 +197,8 @@ en:
       form:
         create: Upload File
         update: Update File
+      page_form:
+        are_you_sure: Are you sure?
         
     categories:
       index:

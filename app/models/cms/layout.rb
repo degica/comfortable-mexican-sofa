@@ -1,8 +1,6 @@
 class Cms::Layout < ActiveRecord::Base
   
-  if ComfortableMexicanSofa.config.database_config && !Rails.env.test?
-    establish_connection "#{ComfortableMexicanSofa.config.database_config}_#{Rails.env}"
-  end
+  ComfortableMexicanSofa.establish_connection(self)
     
   set_table_name :cms_layouts
   
@@ -16,6 +14,7 @@ class Cms::Layout < ActiveRecord::Base
   
   # -- Callbacks ------------------------------------------------------------
   before_validation :assign_label
+  before_create :assign_position
   after_save    :clear_cached_page_content
   after_destroy :clear_cached_page_content
   
@@ -29,6 +28,9 @@ class Cms::Layout < ActiveRecord::Base
     :uniqueness => { :scope => :site_id },
     :format     => { :with => /^\w[a-z0-9_-]*$/i }
     
+  # -- Scopes ---------------------------------------------------------------
+  default_scope order(:position)
+  
   # -- Class Methods --------------------------------------------------------
   # Tree-like structure for layouts
   def self.options_for_select(site, layout = nil, current_layout = nil, depth = 0, spacer = '. . ')
@@ -72,6 +74,11 @@ protected
   
   def assign_label
     self.label = self.label.blank?? self.slug.try(:titleize) : self.label
+  end
+  
+  def assign_position
+    max = self.site.layouts.where(:parent_id => self.parent_id).maximum(:position)
+    self.position = max ? max + 1 : 0
   end
   
   # Forcing page content reload

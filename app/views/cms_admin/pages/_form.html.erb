@@ -25,11 +25,10 @@
     <%= form.select :target_page_id, [["---- #{t('.select_target_page')} ----", nil]] + options %>
   <% end %>
   <%= cms_hook :page_form, :object => form %>
+  <%= render :partial => 'cms_admin/categories/form', :object => form %>
 </div>
 
 <%= render :partial => 'form_blocks' %>
-
-<%= render :partial => 'cms_admin/categories/form', :object => form %>
 
 <%= form.simple_field nil, nil, :class => 'submit_element' do %>
   <%= form.check_box :is_published, :disable_builder => true %>

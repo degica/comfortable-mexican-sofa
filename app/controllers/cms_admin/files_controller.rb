@@ -6,7 +6,7 @@ class CmsAdmin::FilesController < CmsAdmin::BaseController
   
   def index
     return redirect_to :action => :new if @site.files.count == 0
-    @files = @site.files.for_category(params[:category]).all(:order => 'cms_files.label')
+    @files = @site.files.includes(:categories).for_category(params[:category]).all(:order => 'cms_files.label')
   end
   
   def new
@@ -36,7 +36,9 @@ class CmsAdmin::FilesController < CmsAdmin::BaseController
         io.class.class_eval { attr_accessor :original_filename, :content_type }
         io.original_filename  = request.env['HTTP_X_FILE_NAME']
         io.content_type       = request.env['CONTENT_TYPE']
-        @file = @site.files.create!(:file => io)
+        @file = @site.files.create!(
+          (params[:file] || { }).merge(:file => io)
+        )
       end
     end
   rescue ActiveRecord::RecordInvalid
@@ -69,6 +71,15 @@ class CmsAdmin::FilesController < CmsAdmin::BaseController
         redirect_to :action => :index
       end
     end
+  end
+  
+  def reorder
+    (params[:cms_file] || []).each_with_index do |id, index|
+      if (cms_file = Cms::File.find_by_id(id))
+        cms_file.update_attribute(:position, index)
+      end
+    end
+    render :nothing => true
   end
   
 protected

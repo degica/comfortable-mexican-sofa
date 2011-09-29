@@ -1,11 +1,6 @@
 class CreateCms < ActiveRecord::Migration
   
   def self.up
-    
-    if ComfortableMexicanSofa.config.database_config && !Rails.env.test?
-      establish_connection "#{ComfortableMexicanSofa.config.database_config}_#{Rails.env}"
-    end
-    
     # -- Sites --------------------------------------------------------------
     create_table :cms_sites do |t|
       t.string :label
@@ -68,23 +63,29 @@ class CreateCms < ActiveRecord::Migration
       t.string  :label
       t.string  :slug
       t.text    :content
+      t.integer :position,  :null => false, :default => 0
       t.boolean :is_shared, :null => false, :default => false
       t.timestamps
     end
     add_index :cms_snippets, [:site_id, :slug], :unique => true
+    add_index :cms_snippets, [:site_id, :position]
     
     # -- Files --------------------------------------------------------------
     create_table :cms_files do |t|
       t.integer :site_id
+      t.integer :block_id
       t.string  :label
       t.string  :file_file_name
       t.string  :file_content_type
       t.integer :file_file_size
       t.string  :description, :limit => 2048
+      t.integer :position,    :null => false, :default => 0
       t.timestamps
     end
     add_index :cms_files, [:site_id, :label]
     add_index :cms_files, [:site_id, :file_file_name]
+    add_index :cms_files, [:site_id, :position]
+    add_index :cms_files, [:site_id, :block_id]
     
     # -- Revisions -----------------------------------------------------------
     create_table :cms_revisions, :force => true do |t|
@@ -104,7 +105,7 @@ class CreateCms < ActiveRecord::Migration
     
     create_table :cms_categorizations, :force => true do |t|
       t.integer :category_id
-      t.string :categorized_type
+      t.string  :categorized_type
       t.integer :categorized_id
     end
     add_index :cms_categorizations, [:category_id, :categorized_type, :categorized_id], :unique => true,
@@ -112,11 +113,6 @@ class CreateCms < ActiveRecord::Migration
   end
   
   def self.down
-    
-    if ComfortableMexicanSofa.config.database_config && !Rails.env.test?
-      establish_connection "#{ComfortableMexicanSofa.config.database_config}_#{Rails.env}"
-    end
-    
     drop_table :cms_sites
     drop_table :cms_layouts
     drop_table :cms_pages

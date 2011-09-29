@@ -11,8 +11,8 @@ class CmsContentController < ApplicationController
     :only => [:render_css, :render_js]
   
   def render_html(status = 200)
-    if layout = @cms_page.layout
-      app_layout = (layout.app_layout.blank? || request.xhr?) ? false : layout.app_layout
+    if @cms_layout = @cms_page.layout
+      app_layout = (@cms_layout.app_layout.blank? || request.xhr?) ? false : @cms_layout.app_layout
       render :inline => @cms_page.content, :layout => app_layout, :status => status
     else
       render :text => I18n.t('cms.content.layout_not_found'), :status => 404
@@ -35,22 +35,16 @@ protected
   end
   
   def load_cms_site
-    if params[:site_id]
-      @cms_site ||= Cms::Site.find_by_id(params[:site_id])
+    @cms_site ||= if params[:site_id]
+      Cms::Site.find_by_id(params[:site_id])
     else
-      @cms_site ||= Cms::Site.first if Cms::Site.count == 1
-      Cms::Site.find_all_by_hostname(request.host.downcase).each do |site|
-        if site.path.blank?
-          @cms_site = site
-        elsif "#{request.fullpath}/".match /^\/#{Regexp.escape(site.path.to_s)}\//
-          @cms_site = site
-          break
-        end
-      end unless @cms_site
+      Cms::Site.find_site(request.host.downcase, request.fullpath)
     end
     
     if @cms_site
-      params[:cms_path].to_s.gsub!(/^#{@cms_site.path}/, '').gsub!(/^\//, '')
+      if params[:cms_path].present?
+        params[:cms_path].gsub!(/^#{@cms_site.path}/, '').gsub!(/^\//, '')
+      end
       I18n.locale = @cms_site.locale
     else
       I18n.locale = I18n.default_locale
@@ -62,11 +56,11 @@ protected
     return unless ComfortableMexicanSofa.config.enable_fixtures
     ComfortableMexicanSofa::Fixtures.import_all(@cms_site.hostname)
   end
-
+  
   def load_cms_page
     @cms_page = @cms_site.pages.published.find_by_full_path!("/#{params[:cms_path]}")
     return redirect_to(@cms_page.target_page.full_path) if @cms_page.target_page
-
+    
   rescue ActiveRecord::RecordNotFound
     if @cms_page = @cms_site.pages.published.find_by_full_path('/404')
       render_html(404)

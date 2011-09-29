@@ -1,3 +1,5 @@
+//= require comfortable_mexican_sofa/wymeditor/jquery.wymeditor.embed.js
+
 // -- Options overrides -----------------------------------------------------
 var cms_wym_options = {
   

@@ -55,67 +55,94 @@ class ComfortableMexicanSofa::FormBuilder < ActionView::Helpers::FormBuilder
   end
   
   # -- Tag Field Fields -----------------------------------------------------
-  def default_tag_field(tag, options = {})
-    label     = options[:label] || tag.label.to_s.titleize
-    css_class = options[:css_class] || tag.class.to_s.demodulize.underscore
+  def default_tag_field(tag, index, options = {})
+    method    = options.delete(:method) || :text_field_tag
+    label     = tag.label.to_s.titleize
+    css_class = tag.class.to_s.demodulize.underscore
+    content   = ''
     
-    field_css_class = case tag
-    when ComfortableMexicanSofa::Tag::PageRichText
-      'rich_text'
+    input_class = case tag
+    when ComfortableMexicanSofa::Tag::PageDateTime, ComfortableMexicanSofa::Tag::FieldDateTime
+      'datetime'
     when ComfortableMexicanSofa::Tag::PageText, ComfortableMexicanSofa::Tag::FieldText
       'code'
+    when ComfortableMexicanSofa::Tag::PageRichText
+      'rich_text'
     end
     
-    options[:content_field_method] ||= :text_field_tag
-    field = 
-      options[:field] || 
-      @template.send(options[:content_field_method], 'page[blocks_attributes][][content]', tag.content, :id => nil, :class => field_css_class)
+    case method
+    when :file_field_tag
+      input_params = {:id => nil, :class => input_class}
+      input_params.merge!(:multiple => true) if options[:multiple]
+      name = "page[blocks_attributes][#{index}][content]"
+      name << '[]' if options[:multiple]
+      content << @template.send(method, name, input_params)
+      content << @template.render(:partial => 'cms_admin/files/page_form', :object => tag.block)
+    else
+      content << @template.send(method, "page[blocks_attributes][#{index}][content]", tag.content, :id => nil, :class => input_class)
+    end
+    content << @template.hidden_field_tag("page[blocks_attributes][#{index}][label]", tag.label, :id => nil)
     
-    %(
-      <div class='form_element #{css_class}'>
-        <div class='label'>#{label}</div>
-        <div class='value'>
-          #{field}
-          #{@template.hidden_field_tag('page[blocks_attributes][][label]', tag.label, :id => nil)}
-        </div>
-      </div>
-    ).html_safe
+    simple_field(label, content, :class => css_class)
   end
   
-  def field_date_time(tag)
-    default_tag_field(tag, :content_field_method => :datetime_field_tag)
+  def field_date_time(tag, index)
+    default_tag_field(tag, index)
   end
   
-  def field_integer(tag)
-    default_tag_field(tag, :content_field_method => :number_field_tag)
+  def field_integer(tag, index)
+    default_tag_field(tag, index, :method => :number_field_tag)
   end
   
-  def field_string(tag)
-    default_tag_field(tag)
+  def field_string(tag, index)
+    default_tag_field(tag, index)
   end
   
-  def field_text(tag)
-    default_tag_field(tag, :content_field_method => :text_area_tag)
+  def field_text(tag, index)
+    default_tag_field(tag, index, :method => :text_area_tag)
   end
   
-  def page_date_time(tag)
-    default_tag_field(tag, :content_field_method => :datetime_field_tag)
+  def page_date_time(tag, index)
+    default_tag_field(tag, index)
   end
   
-  def page_integer(tag)
-    default_tag_field(tag, :content_field_method => :number_field_tag)
+  def page_integer(tag, index)
+    default_tag_field(tag, index, :method => :number_field_tag)
   end
   
-  def page_string(tag)
-    default_tag_field(tag)
+  def page_string(tag, index)
+    default_tag_field(tag, index)
   end
   
-  def page_text(tag)
-    default_tag_field(tag, :content_field_method => :text_area_tag)
+  def page_text(tag, index)
+    default_tag_field(tag, index, :method => :text_area_tag)
   end
   
-  def page_rich_text(tag)
-    default_tag_field(tag, :content_field_method => :text_area_tag)
+  def page_rich_text(tag, index)
+    default_tag_field(tag, index, :method => :text_area_tag)
+  end
+  
+  def page_file(tag, index)
+    default_tag_field(tag, index, :method => :file_field_tag)
+  end
+  
+  def page_files(tag, index)
+    default_tag_field(tag, index, :method => :file_field_tag, :multiple => true)
+  end
+  
+  def collection(tag, index)
+    options = [["---- Select #{tag.collection_class.titleize} ----", nil]] + 
+      tag.collection_objects.collect do |m| 
+        [m.send(tag.collection_title), m.send(tag.collection_identifier)]
+      end
+      
+    content = @template.select_tag(
+      "page[blocks_attributes][#{index}][content]",
+      @template.options_for_select(options, :selected => tag.content),
+      :id => nil
+    )
+    content << @template.hidden_field_tag("page[blocks_attributes][#{index}][label]", tag.label, :id => nil)
+    simple_field(tag.label, content, :class => tag.class.to_s.demodulize.underscore )
   end
   
 end

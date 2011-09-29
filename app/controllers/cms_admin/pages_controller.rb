@@ -9,7 +9,7 @@ class CmsAdmin::PagesController < CmsAdmin::BaseController
   def index
     return redirect_to :action => :new if @site.pages.count == 0
     if params[:category].present?
-      @pages = @site.pages.for_category(params[:category]).all(:order => 'label')
+      @pages = @site.pages.includes(:categories).for_category(params[:category]).all(:order => 'label')
     else
       @pages = [@site.pages.root].compact
     end
@@ -62,7 +62,7 @@ class CmsAdmin::PagesController < CmsAdmin::BaseController
   end
 
   def reorder
-    (params[:page] || []).each_with_index do |id, index|
+    (params[:cms_page] || []).each_with_index do |id, index|
       if (cms_page = Cms::Page.find_by_id(id))
         cms_page.update_attribute(:position, index)
       end
@@ -101,6 +101,9 @@ protected
   def preview_cms_page
     if params[:preview]
       layout = @page.layout.app_layout.blank?? false : @page.layout.app_layout
+      @cms_site   = @page.site
+      @cms_layout = @page.layout
+      @cms_page   = @page
       render :inline => @page.content(true), :layout => layout
     end
   end

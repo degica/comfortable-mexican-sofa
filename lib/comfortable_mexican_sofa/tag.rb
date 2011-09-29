@@ -1,7 +1,9 @@
+# encoding: utf-8
+
 # This module provides all Tag classes with neccessary methods.
 # Example class that will behave as a Tag:
 #   class MySpecialTag
-#     include CmsTag
+#     include ComfortableMexicanSofa::Tag
 #     ...
 #   end
 module ComfortableMexicanSofa::Tag
@@ -65,13 +67,8 @@ module ComfortableMexicanSofa::Tag
     # Content that is used during page rendering. Outputting existing content
     # as a default.
     def render
-      # cleaning content from possible irb stuff. Partial and Helper tags are OK.
-      if !ComfortableMexicanSofa.config.allow_irb && 
-          ![ComfortableMexicanSofa::Tag::Partial, ComfortableMexicanSofa::Tag::Helper].member?(self.class)
-        content.to_s.gsub('<%', '&lt;%').gsub('%>', '%&gt;')
-      else
-        content.to_s
-      end
+      ignore = [ComfortableMexicanSofa::Tag::Partial, ComfortableMexicanSofa::Tag::Helper].member?(self.class)
+      ComfortableMexicanSofa::Tag.sanitize_irb(content, ignore)
     end
     
     # Find or initialize Cms::Block object
@@ -79,19 +76,9 @@ module ComfortableMexicanSofa::Tag
       page.blocks.detect{|b| b.label == self.label.to_s} || page.blocks.build(:label => self.label.to_s)
     end
     
-    # Find or initialize Cms::Snippet object
-    def snippet
-      page.site.snippets.detect{|s| s.slug == self.label.to_s} || page.site.snippets.build(:slug => self.label.to_s)
-    end
-    
-    # Initializing Cms::Upload object
-    def file
-      page.site.files.detect{|f| f.file_file_name == self.label.to_s}
-    end
-    
     # Checks if this tag is using Cms::Block
     def is_cms_block?
-      %w(page field).member?(self.class.to_s.demodulize.underscore.split(/_/).first)
+      %w(page field collection file).member?(self.class.to_s.demodulize.underscore.split(/_/).first)
     end
     
     # Used in displaying form elements for Cms::Block
@@ -127,6 +114,15 @@ private
         text
       end
     end.join('')
+  end
+  
+  # Cleaning content from possible irb stuff. Partial and Helper tags are OK.
+  def self.sanitize_irb(content, ignore = false)
+    if ComfortableMexicanSofa.config.allow_irb || ignore
+      content.to_s
+    else
+      content.to_s.gsub('<%', '&lt;%').gsub('%>', '%&gt;')
+    end
   end
   
   def self.included(tag)

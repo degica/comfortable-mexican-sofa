@@ -1,8 +1,6 @@
 class Cms::Snippet < ActiveRecord::Base
   
-  if ComfortableMexicanSofa.config.database_config && !Rails.env.test?
-    establish_connection "#{ComfortableMexicanSofa.config.database_config}_#{Rails.env}"
-  end
+  ComfortableMexicanSofa.establish_connection(self)
   
   set_table_name :cms_snippets
   
@@ -15,6 +13,7 @@ class Cms::Snippet < ActiveRecord::Base
   
   # -- Callbacks ------------------------------------------------------------
   before_validation :assign_label
+  before_create :assign_position
   after_save    :clear_cached_page_content
   after_destroy :clear_cached_page_content
   
@@ -27,6 +26,9 @@ class Cms::Snippet < ActiveRecord::Base
     :presence   => true,
     :uniqueness => { :scope => :site_id },
     :format     => { :with => /^\w[a-z0-9_-]*$/i }
+    
+  # -- Scopes ---------------------------------------------------------------
+  default_scope order(:position)
   
 protected
   
@@ -39,6 +41,11 @@ protected
   # are hundreds of pages.
   def clear_cached_page_content
     site.pages.all.each{ |page| page.save }
+  end
+  
+  def assign_position
+    max = self.site.snippets.maximum(:position)
+    self.position = max ? max + 1 : 0
   end
   
 end
