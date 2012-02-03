@@ -1,8 +1,12 @@
+//= require comfortable_mexican_sofa/codemirror/codemirror.js
+//= require comfortable_mexican_sofa/codemirror/mode/css/css.js
+//= require comfortable_mexican_sofa/codemirror/mode/javascript/javascript.js
+//= require comfortable_mexican_sofa/codemirror/mode/xml/xml.js
+//= require comfortable_mexican_sofa/codemirror/mode/htmlmixed/htmlmixed.js
 //= require comfortable_mexican_sofa/jquery.js
 //= require comfortable_mexican_sofa/jquery_ui.js
 //= require comfortable_mexican_sofa/jquery_ui_timepicker.js
 //= require comfortable_mexican_sofa/rails.js
-//= require comfortable_mexican_sofa/codemirror/codemirror.js
 //= require comfortable_mexican_sofa/elrte/elrte.js
 //= require comfortable_mexican_sofa/elrte/elrte.codemirror.js
 //= require comfortable_mexican_sofa/elrte/elrte.sofa_link.js
@@ -114,13 +118,11 @@ $.CMS = function(){
     
     enable_codemirror: function(){
       $('textarea.code').each(function(i, element){
-        var mode = 'htmlmixed';
-        if ($(element).hasClass('css'))  mode = 'css';
-        if ($(element).hasClass('js'))   mode = 'javascript';
         CodeMirror.fromTextArea(element, {
-          htmlMode: true,
-          mode:     mode,
-          tabMode: 'indent'
+          mode: "text/html",
+          lineNumbers: true,
+          matchBrackets: true,
+          tabMode: "indent",
         });
       });
     },
