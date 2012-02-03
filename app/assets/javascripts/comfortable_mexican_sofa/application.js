@@ -1,8 +1,12 @@
+//= require comfortable_mexican_sofa/codemirror/codemirror.js
+//= require comfortable_mexican_sofa/codemirror/mode/css/css.js
+//= require comfortable_mexican_sofa/codemirror/mode/javascript/javascript.js
+//= require comfortable_mexican_sofa/codemirror/mode/xml/xml.js
+//= require comfortable_mexican_sofa/codemirror/mode/htmlmixed/htmlmixed.js
 //= require comfortable_mexican_sofa/jquery.js
 //= require comfortable_mexican_sofa/jquery_ui.js
 //= require comfortable_mexican_sofa/jquery_ui_timepicker.js
 //= require comfortable_mexican_sofa/rails.js
-//= require comfortable_mexican_sofa/codemirror/codemirror.js
 //= require comfortable_mexican_sofa/elrte/elrte.js
 //= require comfortable_mexican_sofa/elrte/elrte.codemirror.js
 //= require comfortable_mexican_sofa/elrte/elrte.sofa_link.js
@@ -91,7 +95,7 @@ $.CMS = function(){
       elRTE.prototype.options.panels.sofa_style     = ['bold', 'italic', 'underline'];
       elRTE.prototype.options.panels.sofa_alignment = ['justifyleft', 'justifycenter', 'justifyright'];
       elRTE.prototype.options.panels.sofa_format    = ['formatblock'];
-      elRTE.prototype.options.panels.sofa_copypaste = ['pastetext'];
+      elRTE.prototype.options.panels.sofa_copypaste = ['pasteformattext'];
       elRTE.prototype.options.panels.sofa_links     = ['sofa_link', 'unlink'];
       
       elRTE.prototype.options.toolbars.sofa = $.CMS.config.elRTE.toolbar;
@@ -114,14 +118,11 @@ $.CMS = function(){
     
     enable_codemirror: function(){
       $('textarea.code').each(function(i, element){
-        var mode = 'htmlmixed';
-        if ($(element).hasClass('css'))  mode = 'css';
-        if ($(element).hasClass('js'))   mode = 'javascript';
         CodeMirror.fromTextArea(element, {
-          htmlMode:     true,
-          mode:         mode,
-          tabMode:      'indent',
-          lineWrapping: true
+          mode: "text/html",
+          lineNumbers: true,
+          matchBrackets: true,
+          extraKeys: {"Tab": "indentAuto"},
         });
       });
     },

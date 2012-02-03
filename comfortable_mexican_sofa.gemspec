@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "comfortable_mexican_sofa"
-  s.version = "1.6.18"
+  s.version = "1.6.8"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Oleg Khabarov", "The Working Group Inc"]
-  s.date = "2012-03-27"
+  s.date = "2012-02-07"
   s.description = ""
   s.email = "oleg@theworkinggroup.ca"
   s.extra_rdoc_files = [
@@ -50,7 +50,6 @@ Gem::Specification.new do |s|
     "app/assets/images/comfortable_mexican_sofa/elrte/smileys/unhappy.png",
     "app/assets/images/comfortable_mexican_sofa/elrte/smileys/waii.png",
     "app/assets/images/comfortable_mexican_sofa/elrte/smileys/wink.png",
-    "app/assets/images/comfortable_mexican_sofa/icon_draft.gif",
     "app/assets/images/comfortable_mexican_sofa/icon_layout.gif",
     "app/assets/images/comfortable_mexican_sofa/icon_move.gif",
     "app/assets/images/comfortable_mexican_sofa/icon_regular.gif",
@@ -69,10 +68,13 @@ Gem::Specification.new do |s|
     "app/assets/images/comfortable_mexican_sofa/jquery_ui/ui-icons_454545_256x240.png",
     "app/assets/images/comfortable_mexican_sofa/jquery_ui/ui-icons_888888_256x240.png",
     "app/assets/images/comfortable_mexican_sofa/jquery_ui/ui-icons_cd0a0a_256x240.png",
-    "app/assets/images/comfortable_mexican_sofa/nav_arrow.png",
     "app/assets/images/comfortable_mexican_sofa/x.png",
     "app/assets/javascripts/comfortable_mexican_sofa/application.js",
     "app/assets/javascripts/comfortable_mexican_sofa/codemirror/codemirror.js",
+    "app/assets/javascripts/comfortable_mexican_sofa/codemirror/mode/css/css.js",
+    "app/assets/javascripts/comfortable_mexican_sofa/codemirror/mode/htmlmixed/htmlmixed.js",
+    "app/assets/javascripts/comfortable_mexican_sofa/codemirror/mode/javascript/javascript.js",
+    "app/assets/javascripts/comfortable_mexican_sofa/codemirror/mode/xml/xml.js",
     "app/assets/javascripts/comfortable_mexican_sofa/elrte/elrte.codemirror.js",
     "app/assets/javascripts/comfortable_mexican_sofa/elrte/elrte.js",
     "app/assets/javascripts/comfortable_mexican_sofa/elrte/elrte.sofa_image.js",
@@ -82,7 +84,7 @@ Gem::Specification.new do |s|
     "app/assets/javascripts/comfortable_mexican_sofa/jquery_ui_timepicker.js",
     "app/assets/javascripts/comfortable_mexican_sofa/rails.js",
     "app/assets/stylesheets/comfortable_mexican_sofa/application.css",
-    "app/assets/stylesheets/comfortable_mexican_sofa/codemirror.css",
+    "app/assets/stylesheets/comfortable_mexican_sofa/codemirror/codemirror.css",
     "app/assets/stylesheets/comfortable_mexican_sofa/content.css",
     "app/assets/stylesheets/comfortable_mexican_sofa/dialogs.css",
     "app/assets/stylesheets/comfortable_mexican_sofa/elrte.css",
@@ -176,7 +178,6 @@ Gem::Specification.new do |s|
     "config/initializers/paperclip.rb",
     "config/locales/en.yml",
     "config/locales/es.yml",
-    "config/locales/ja.yml",
     "config/locales/pt-BR.yml",
     "config/locales/zh-CN.yml",
     "config/routes.rb",
@@ -225,7 +226,6 @@ Gem::Specification.new do |s|
     "lib/comfortable_mexican_sofa/tags/collection.rb",
     "lib/comfortable_mexican_sofa/tags/field_datetime.rb",
     "lib/comfortable_mexican_sofa/tags/field_integer.rb",
-    "lib/comfortable_mexican_sofa/tags/field_rich_text.rb",
     "lib/comfortable_mexican_sofa/tags/field_string.rb",
     "lib/comfortable_mexican_sofa/tags/field_text.rb",
     "lib/comfortable_mexican_sofa/tags/file.rb",
@@ -242,8 +242,8 @@ Gem::Specification.new do |s|
     "lib/comfortable_mexican_sofa/version.rb",
     "lib/comfortable_mexican_sofa/view_hooks.rb",
     "lib/comfortable_mexican_sofa/view_methods.rb",
-    "lib/generators/comfy/cms/README",
-    "lib/generators/comfy/cms/cms_generator.rb",
+    "lib/generators/README",
+    "lib/generators/cms_generator.rb",
     "lib/tasks/comfortable_mexican_sofa.rake",
     "rvmrc.example",
     "script/rails",
@@ -304,7 +304,6 @@ Gem::Specification.new do |s|
     "test/unit/tags/collection_test.rb",
     "test/unit/tags/field_datetime_test.rb",
     "test/unit/tags/field_integer_test.rb",
-    "test/unit/tags/field_rich_text_test.rb",
     "test/unit/tags/field_string_test.rb",
     "test/unit/tags/field_text_test.rb",
     "test/unit/tags/file_test.rb",
@@ -322,7 +321,7 @@ Gem::Specification.new do |s|
   ]
   s.homepage = "http://github.com/comfy/comfortable-mexican-sofa"
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.10"
+  s.rubygems_version = "1.8.15"
   s.summary = "ComfortableMexicanSofa is a powerful CMS Engine for Ruby on Rails 3 applications"
 
   if s.respond_to? :specification_version then

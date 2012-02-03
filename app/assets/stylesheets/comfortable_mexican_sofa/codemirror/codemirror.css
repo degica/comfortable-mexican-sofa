@@ -78,12 +78,21 @@
   visibility: visible;
 }
 
+<<<<<<< HEAD:app/assets/stylesheets/comfortable_mexican_sofa/codemirror.css
 div.CodeMirror-selected { background: #d9d9d9; }
 .CodeMirror-focused div.CodeMirror-selected { background: #eee; }
 
 .CodeMirror-searching {
   background: #ffa;
   background: rgba(255, 255, 0, .4);
+=======
+div.CodeMirror-selected, span.CodeMirror-selected {
+  background: #ccc !important;
+  color: HighlightText !important;
+}
+.CodeMirror-focused span.CodeMirror-selected {
+  background: Highlight !important;
+>>>>>>> 7199ba3... Update CodeMirror css and js to 2.21:app/assets/stylesheets/comfortable_mexican_sofa/codemirror/codemirror.css
 }
 
 /* Default theme */
