@@ -64,7 +64,7 @@
   visibility: visible;
 }
 
-span.CodeMirror-selected {
+div.CodeMirror-selected, span.CodeMirror-selected {
   background: #ccc !important;
   color: HighlightText !important;
 }
