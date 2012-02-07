@@ -1,5 +1,3 @@
-// CodeMirror version 2.21
-//
 // All functions that need access to the editor's state live inside
 // the CodeMirror function. Below that, at the bottom of the file,
 // some utilities are defined.
@@ -30,7 +28,7 @@ var CodeMirror = (function() {
             '<div class="CodeMirror-gutter"><div class="CodeMirror-gutter-text"></div></div>' +
             // Provides positioning relative to (visible) text origin
             '<div class="CodeMirror-lines"><div style="position: relative; z-index: 0">' +
-              '<div style="position: absolute; width: 100%; height: 0; overflow: hidden; visibility: hidden; outline: 5px auto none"></div>' +
+              '<div style="position: absolute; width: 100%; height: 0; overflow: hidden; visibility: hidden;"></div>' +
               '<pre class="CodeMirror-cursor">&#160;</pre>' + // Absolutely positioned blinky cursor
               '<div style="position: relative; z-index: -1"></div><div></div>' + // DIVs containing the selection and the actual code
             '</div></div></div></div></div>';
@@ -86,7 +84,7 @@ var CodeMirror = (function() {
     var bracketHighlighted;
     // Tracks the maximum line length so that the horizontal scrollbar
     // can be kept static when scrolling.
-    var maxLine = "", maxWidth, tabText = computeTabText();
+    var maxLine = "", maxWidth;
 
     // Initialize the content.
     operation(function(){setValue(options.value || ""); updateInput = false;})();
@@ -150,9 +148,11 @@ var CodeMirror = (function() {
         else if (option == "readOnly" && !value) {resetInput(true);}
         else if (option == "theme") themeChanged();
         else if (option == "lineWrapping" && oldVal != value) operation(wrappingChanged)();
-        else if (option == "tabSize") operation(tabsChanged)();
-        if (option == "lineNumbers" || option == "gutter" || option == "firstLineNumber" || option == "theme")
+        else if (option == "tabSize") updateDisplay(true);
+        if (option == "lineNumbers" || option == "gutter" || option == "firstLineNumber" || option == "theme") {
+          gutterChanged();
           updateDisplay(true);
+        }
       },
       getOption: function(option) {return options[option];},
       undo: operation(undo),
@@ -259,7 +259,15 @@ var CodeMirror = (function() {
       moveH: operation(moveH),
       deleteH: operation(deleteH),
       moveV: operation(moveV),
-      toggleOverwrite: function() {overwrite = !overwrite;},
+      toggleOverwrite: function() {
+        if(overwrite){
+          overwrite = false;
+          cursor.className = cursor.className.replace(" CodeMirror-overwrite", "");
+        } else {
+          overwrite = true;
+          cursor.className += " CodeMirror-overwrite";
+        }
+      },
 
       posFromIndex: function(off) {
         var lineNo = 0, ch;
@@ -280,8 +288,8 @@ var CodeMirror = (function() {
         return index;
       },
       scrollTo: function(x, y) {
-        if (x != null) scroller.scrollTop = x;
-        if (y != null) scroller.scrollLeft = y;
+        if (x != null) scroller.scrollLeft = x;
+        if (y != null) scroller.scrollTop = y;
         updateDisplay([]);
       },
 
@@ -513,9 +521,9 @@ var CodeMirror = (function() {
       }
     }
     function onKeyPress(e) {
+      if (options.onKeyEvent && options.onKeyEvent(instance, addStop(e))) return;
       var keyCode = e_prop(e, "keyCode"), charCode = e_prop(e, "charCode");
       if (window.opera && keyCode == lastStoppedKey) {lastStoppedKey = null; e_preventDefault(e); return;}
-      if (options.onKeyEvent && options.onKeyEvent(instance, addStop(e))) return;
       if (window.opera && !e.which && handleKeyBinding(e)) return;
       if (options.electricChars && mode.electricChars && options.smartIndent && !options.readOnly) {
         var ch = String.fromCharCode(charCode == null ? keyCode : charCode);
@@ -784,7 +792,7 @@ var CodeMirror = (function() {
       if (!posEq(sel.from, sel.to)) {
         prevInput = "";
         input.value = getSelection();
-        input.select();
+        selectInput(input);
       } else if (user) prevInput = input.value = "";
     }
 
@@ -971,7 +979,7 @@ var CodeMirror = (function() {
         if (!nextIntact || nextIntact.from > j) {
           if (line.hidden) var html = scratch.innerHTML = "<pre></pre>";
           else {
-            var html = '<pre>' + line.getHTML(tabText) + '</pre>';
+            var html = '<pre>' + line.getHTML(makeTab) + '</pre>';
             // Kludge to make sure the styled element lies behind the selection (by z-index)
             if (line.className)
               html = '<div style="position: relative"><pre class="' + line.className +
@@ -1249,13 +1257,10 @@ var CodeMirror = (function() {
       }
       changes.push({from: 0, to: doc.size});
     }
-    function computeTabText() {
-      for (var str = '<span class="cm-tab">', i = 0; i < options.tabSize; ++i) str += " ";
-      return str + "</span>";
-    }
-    function tabsChanged() {
-      tabText = computeTabText();
-      updateDisplay(true);
+    function makeTab(col) {
+      var w = options.tabSize - col % options.tabSize;
+      for (var str = '<span class="cm-tab">', i = 0; i < w; ++i) str += " ";
+      return {html: str + "</span>", width: w};
     }
     function themeChanged() {
       scroller.className = scroller.className.replace(/\s*cm-s-\w+/g, "") +
@@ -1392,7 +1397,7 @@ var CodeMirror = (function() {
       if (x <= 0) return 0;
       var lineObj = getLine(line), text = lineObj.text;
       function getX(len) {
-        measure.innerHTML = "<pre><span>" + lineObj.getHTML(tabText, len) + "</span></pre>";
+        measure.innerHTML = "<pre><span>" + lineObj.getHTML(makeTab, len) + "</span></pre>";
         return measure.firstChild.firstChild.offsetWidth;
       }
       var from = 0, fromX = 0, to = text.length, toX;
@@ -1425,7 +1430,7 @@ var CodeMirror = (function() {
         var end = line.text.indexOf(" ", ch + 2);
         extra = htmlEscape(line.text.slice(ch + 1, end < 0 ? line.text.length : end + (ie ? 5 : 0)));
       }
-      measure.innerHTML = "<pre>" + line.getHTML(tabText, ch) +
+      measure.innerHTML = "<pre>" + line.getHTML(makeTab, ch) +
         '<span id="CodeMirror-temp-' + tempId + '">' + htmlEscape(line.text.charAt(ch) || " ") + "</span>" +
         extra + "</pre>";
       var elt = document.getElementById("CodeMirror-temp-" + tempId);
@@ -1541,7 +1546,7 @@ var CodeMirror = (function() {
       leaveInputAlone = true;
       var val = input.value = getSelection();
       focusInput();
-      input.select();
+      selectInput(input);
       function rehide() {
         var newVal = splitLines(input.value).join("\n");
         if (newVal != val) operation(replaceSelection)(newVal, "end");
@@ -2272,15 +2277,35 @@ var CodeMirror = (function() {
     indentation: function(tabSize) {return countColumn(this.text, null, tabSize);},
     // Produces an HTML fragment for the line, taking selection,
     // marking, and highlighting into account.
-    getHTML: function(tabText, endAt) {
-      var html = [], first = true;
+    getHTML: function(makeTab, endAt) {
+      var html = [], first = true, col = 0;
       function span(text, style) {
         if (!text) return;
         // Work around a bug where, in some compat modes, IE ignores leading spaces
         if (first && ie && text.charAt(0) == " ") text = "\u00a0" + text.slice(1);
         first = false;
-        if (style) html.push('<span class="', style, '">', htmlEscape(text).replace(/\t/g, tabText), "</span>");
-        else html.push(htmlEscape(text).replace(/\t/g, tabText));
+        if (text.indexOf("\t") == -1) {
+          col += text.length;
+          var escaped = htmlEscape(text);
+        } else {
+          var escaped = "";
+          for (var pos = 0;;) {
+            var idx = text.indexOf("\t", pos);
+            if (idx == -1) {
+              escaped += htmlEscape(text.slice(pos));
+              col += text.length - pos;
+              break;
+            } else {
+              col += idx - pos;
+              var tab = makeTab(col);
+              escaped += htmlEscape(text.slice(pos, idx)) + tab.html;
+              col += tab.width;
+              pos = idx + 1;
+            }
+          }
+        }
+        if (style) html.push('<span class="', style, '">', escaped, "</span>");
+        else html.push(escaped);
       }
       var st = this.styles, allText = this.text, marked = this.marked;
       var len = allText.length;
@@ -2559,7 +2584,7 @@ var CodeMirror = (function() {
       var dtime = time - this.time;
       if (dtime > 400 || !last) {
         this.done.push([{start: start, added: added, old: old}]);
-      } else if (last.start > start + added || last.start + last.added < start - last.added + last.old.length) {
+      } else if (last.start > start + old.length || last.start + last.added < start - last.added + last.old.length) {
         cur.push({start: start, added: added, old: old});
       } else {
         var oldoff = 0;

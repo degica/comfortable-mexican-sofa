@@ -122,7 +122,7 @@ $.CMS = function(){
           mode: "text/html",
           lineNumbers: true,
           matchBrackets: true,
-          tabMode: "indent",
+          extraKeys: {"Tab": "indentAuto"},
         });
       });
     },
