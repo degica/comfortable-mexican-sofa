@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Oleg Khabarov", "The Working Group Inc"]
-  s.date = "2012-01-18"
+  s.date = "2012-02-07"
   s.description = ""
   s.email = "oleg@theworkinggroup.ca"
   s.extra_rdoc_files = [
@@ -71,6 +71,10 @@ Gem::Specification.new do |s|
     "app/assets/images/comfortable_mexican_sofa/x.png",
     "app/assets/javascripts/comfortable_mexican_sofa/application.js",
     "app/assets/javascripts/comfortable_mexican_sofa/codemirror/codemirror.js",
+    "app/assets/javascripts/comfortable_mexican_sofa/codemirror/mode/css/css.js",
+    "app/assets/javascripts/comfortable_mexican_sofa/codemirror/mode/htmlmixed/htmlmixed.js",
+    "app/assets/javascripts/comfortable_mexican_sofa/codemirror/mode/javascript/javascript.js",
+    "app/assets/javascripts/comfortable_mexican_sofa/codemirror/mode/xml/xml.js",
     "app/assets/javascripts/comfortable_mexican_sofa/elrte/elrte.codemirror.js",
     "app/assets/javascripts/comfortable_mexican_sofa/elrte/elrte.js",
     "app/assets/javascripts/comfortable_mexican_sofa/elrte/elrte.sofa_image.js",
@@ -80,7 +84,7 @@ Gem::Specification.new do |s|
     "app/assets/javascripts/comfortable_mexican_sofa/jquery_ui_timepicker.js",
     "app/assets/javascripts/comfortable_mexican_sofa/rails.js",
     "app/assets/stylesheets/comfortable_mexican_sofa/application.css",
-    "app/assets/stylesheets/comfortable_mexican_sofa/codemirror.css",
+    "app/assets/stylesheets/comfortable_mexican_sofa/codemirror/codemirror.css",
     "app/assets/stylesheets/comfortable_mexican_sofa/content.css",
     "app/assets/stylesheets/comfortable_mexican_sofa/dialogs.css",
     "app/assets/stylesheets/comfortable_mexican_sofa/elrte.css",
@@ -154,6 +158,7 @@ Gem::Specification.new do |s|
     "app/views/cms_admin/snippets/edit.html.erb",
     "app/views/cms_admin/snippets/index.html.erb",
     "app/views/cms_admin/snippets/new.html.erb",
+    "app/views/cms_content/render_sitemap.xml.builder",
     "app/views/layouts/cms_admin.html.erb",
     "app/views/layouts/cms_admin/_body.html.erb",
     "app/views/layouts/cms_admin/_center.html.erb",
@@ -215,6 +220,7 @@ Gem::Specification.new do |s|
     "lib/comfortable_mexican_sofa/fixtures.rb",
     "lib/comfortable_mexican_sofa/form_builder.rb",
     "lib/comfortable_mexican_sofa/render_methods.rb",
+    "lib/comfortable_mexican_sofa/sitemap.rb",
     "lib/comfortable_mexican_sofa/tag.rb",
     "lib/comfortable_mexican_sofa/tags/asset.rb",
     "lib/comfortable_mexican_sofa/tags/collection.rb",
@@ -292,6 +298,7 @@ Gem::Specification.new do |s|
     "test/unit/models/site_test.rb",
     "test/unit/models/snippet_test.rb",
     "test/unit/revisions_test.rb",
+    "test/unit/sitemap_test.rb",
     "test/unit/tag_test.rb",
     "test/unit/tags/asset_test.rb",
     "test/unit/tags/collection_test.rb",
@@ -312,9 +319,9 @@ Gem::Specification.new do |s|
     "test/unit/tags/snippet_test.rb",
     "test/unit/view_methods_test.rb"
   ]
-  s.homepage = "http://github.com/twg/comfortable-mexican-sofa"
+  s.homepage = "http://github.com/comfy/comfortable-mexican-sofa"
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.10"
+  s.rubygems_version = "1.8.15"
   s.summary = "ComfortableMexicanSofa is a powerful CMS Engine for Ruby on Rails 3 applications"
 
   if s.respond_to? :specification_version then
