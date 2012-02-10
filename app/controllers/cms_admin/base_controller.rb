@@ -34,7 +34,12 @@ protected
       flash[:error] = I18n.t('cms.base.site_not_found')
       return redirect_to(new_cms_admin_site_path)
     end
-    raise "SiteNotAvailable" unless available_sites.detect { |x| x.id == @site.id }
+    # if we are trying to select a site, but don't have it in the available, 
+    # redirect back to the site selection
+    if @site && available_sites.detect { |x| x.id == @site.id }.blank?
+      @site = nil
+      return redirect_to(cms_admin_sites_path)
+    end
     I18n.locale = ComfortableMexicanSofa.config.admin_locale || @site.locale
   end
 
