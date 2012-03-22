@@ -34,8 +34,11 @@ Rails.application.routes.draw do
   scope :controller => :cms_content do
     get 'cms-css/:site_id/:identifier' => :render_css,  :as => 'cms_css'
     get 'cms-js/:site_id/:identifier'  => :render_js,   :as => 'cms_js'
-    get '(:cms_path)/sitemap'  => :render_sitemap,   :as => 'cms_sitemap', :constraints => {:format => /xml/}, :format => :xml
-    get '/' => :render_html,  :as => 'cms_html',  :path => "(*cms_path)"
+    get '(:cms_path)/sitemap' => :render_sitemap,
+      :as           => 'cms_sitemap',
+      :constraints  => {:format => /xml/},
+      :format       => :xml
+    get '/' => :render_html,  :as => 'cms_html',  :path => "(*cms_path)(.:format)"
   end
-  
-end
+
+end 
