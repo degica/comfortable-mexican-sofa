@@ -38,7 +38,8 @@ Rails.application.routes.draw do
       :as           => 'cms_sitemap',
       :constraints  => {:format => /xml/},
       :format       => :xml
-    get '/' => :render_html,  :as => 'cms_html',  :path => "(*cms_path)(.:format)"
+    get '/' => :render_html,  :as => 'cms_html',  :path => "(*cms_path).(:format)"
+    get '/' => :render_html,  :as => 'cms_html',  :path => "(*cms_path)"
   end
   
 end if ComfortableMexicanSofa.config.use_default_routes
