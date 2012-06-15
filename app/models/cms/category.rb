@@ -4,6 +4,9 @@ class Cms::Category < ActiveRecord::Base
   
   self.table_name = 'cms_categories'
   
+  attr_accessible :label,
+                  :categorized_type
+  
   # -- Relationships --------------------------------------------------------
   belongs_to :site
   has_many :categorizations,
@@ -14,7 +17,7 @@ class Cms::Category < ActiveRecord::Base
     :presence   => true
   validates :label,
     :presence   => true,
-    :uniqueness => { :scope => :categorized_type }
+    :uniqueness => { :scope => [:categorized_type, :site_id] }
   validates :categorized_type,
     :presence   => true
     

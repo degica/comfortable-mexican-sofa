@@ -6,19 +6,23 @@ en:
     slug: Slug
     parent_id: Parent
     content: Content
+    identifier: Identifier
   activerecord:
     models:
       cms/site: Site
       cms/layout: Layout
       cms/page: Page
       cms/snippet: Snippet
+      cms/file: File
     attributes:
       cms/site:
+        identifier: Identifier
         hostname: Hostname
         path: Path
         locale: Language
         is_mirrored: Mirrored
       cms/layout:
+        identifier: Identifier
         label: Layout Name
         app_layout: App Layout
         parent_id: Parent Layout
@@ -30,6 +34,11 @@ en:
         slug: Slug
         target_page_id: Redirect to Page
         is_published: Published
+      cms/file:
+        file: File
+        description: Description
+      cms/snippet:
+        identifier: Identifier
         
   # -- Controllers ----------------------------------------------------------
   cms:
@@ -181,6 +190,7 @@ en:
         full_path: Full Path
         slug: Slug
         update: Update to this Revision
+        current: Current
       
     files:
       index:

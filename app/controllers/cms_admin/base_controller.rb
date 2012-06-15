@@ -7,10 +7,15 @@ class CmsAdmin::BaseController < ApplicationController
 
   before_filter :authenticate,
                 :load_admin_site,
+                :set_locale,
                 :load_fixtures,
                 :except => :jump
   
   layout 'cms_admin'
+  
+  if ComfortableMexicanSofa.config.admin_cache_sweeper.present?
+    cache_sweeper *ComfortableMexicanSofa.config.admin_cache_sweeper
+  end
   
   def jump
     path = ComfortableMexicanSofa.config.admin_route_redirect
@@ -22,7 +27,9 @@ class CmsAdmin::BaseController < ApplicationController
 protected
   
   def load_admin_site
-    unless (@site = Cms::Site.find_by_id(params[:site_id]))
+    if @site = Cms::Site.find_by_id(params[:site_id] || session[:site_id])
+      session[:site_id] = @site.id
+    else
       I18n.locale = ComfortableMexicanSofa.config.admin_locale || I18n.default_locale
       flash[:error] = I18n.t('cms.base.site_not_found')
       return redirect_to(cms_admin_sites_path)
@@ -33,7 +40,11 @@ protected
       @site = nil
       return redirect_to(cms_admin_sites_path)
     end
-    I18n.locale = ComfortableMexicanSofa.config.admin_locale || @site.locale
+  end
+
+  def set_locale
+    I18n.locale = ComfortableMexicanSofa.config.admin_locale || (@site && @site.locale)
+    true
   end
 
   def load_fixtures

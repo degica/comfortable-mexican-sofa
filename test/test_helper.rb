@@ -8,13 +8,6 @@ require 'rails/test_help'
 Paperclip::Attachment.default_options[:use_timestamp] = false
 
 class ActiveSupport::TestCase
-  
-  # Disabling the noise
-  $stdout_orig = $stdout
-  $stderr_orig = $stderr
-  $stdout = StringIO.new
-  $stderr = StringIO.new
-  
   fixtures :all
   include ActionDispatch::TestProcess
   
@@ -30,7 +23,8 @@ class ActiveSupport::TestCase
       config.public_auth          = 'ComfortableMexicanSofa::DummyAuth'
       config.admin_route_prefix   = 'cms-admin'
       config.admin_route_redirect = ''
-      config.allow_irb            = false
+      config.use_default_routes   = true
+      config.enable_sitemap       = true
       config.enable_fixtures      = false
       config.fixtures_path        = File.expand_path('db/cms_fixtures', Rails.root)
       config.revisions_limit      = 25
@@ -38,28 +32,28 @@ class ActiveSupport::TestCase
         'en'    => 'English',
         'es'    => 'Español',
         'pt-BR' => 'Português Brasileiro',
-        'zh-CN' => '简体中文' 
+        'zh-CN' => '简体中文',
+        'ja'    => '日本語'
       }
       config.admin_locale         = nil
-      config.upload_file_options  = { }
+      config.upload_file_options  = { :url => '/system/:class/:id/:attachment/:style/:filename' }
+      config.admin_cache_sweeper  = nil
+      config.allow_irb            = false
+      config.allowed_helpers      = nil
+      config.allowed_partials     = nil
+      config.hostname_aliases     = nil
     end
     ComfortableMexicanSofa::HttpAuth.username = 'username'
     ComfortableMexicanSofa::HttpAuth.password = 'password'
   end
   
   # Example usage:
-  #   assert_has_errors_on( @record, [:field_1, :field_2] )
-  #   assert_has_errors_on( @record, {:field_1 => 'Message1', :field_2 => 'Message 2'} )
-  def assert_has_errors_on(record, fields)
-    fields = [fields].flatten unless fields.is_a?(Hash)
-    fields.each do |field, message|
-      assert record.errors.to_hash.has_key?(field.to_sym), "#{record.class.name} should error on invalid #{field}"
-      if message && record.errors[field].is_a?(Array) && !message.is_a?(Array)
-        assert_not_nil record.errors[field].index(message)
-      elsif message
-        assert_equal message, record.errors[field]
-      end
-    end
+  #   assert_has_errors_on @record, :field_1, :field_2
+  def assert_has_errors_on(record, *fields)
+    unmatched = record.errors.keys - fields.flatten
+    assert unmatched.blank?, "#{record.class} has errors on '#{unmatched.join(', ')}'"
+    unmatched = fields.flatten - record.errors.keys
+    assert unmatched.blank?, "#{record.class} doesn't have errors on '#{unmatched.join(', ')}'"
   end
   
   # Example usage:

@@ -19,10 +19,11 @@ class CmsContentControllerTest < ActionController::TestCase
       default_snippet_content
       layout_content_c'
     ), response.body
+    assert_equal 'text/html', response.content_type
   end
   
   def test_render_page_with_app_layout
-    cms_layouts(:default).update_attribute(:app_layout, 'cms_admin.html.erb')
+    cms_layouts(:default).update_attribute(:app_layout, 'cms_admin')
     get :render_html, :cms_path => ''
     assert_response :success
     assert assigns(:cms_page)
@@ -30,7 +31,7 @@ class CmsContentControllerTest < ActionController::TestCase
   end
   
   def test_render_page_with_xhr
-    cms_layouts(:default).update_attribute(:app_layout, 'cms_admin.html.erb')
+    cms_layouts(:default).update_attribute(:app_layout, 'cms_admin')
     xhr :get, :render_html, :cms_path => ''
     assert_response :success
     assert assigns(:cms_page)
@@ -38,9 +39,9 @@ class CmsContentControllerTest < ActionController::TestCase
   end
   
   def test_render_page_not_found
-    get :render_html, :cms_path => 'doesnotexist'
-    assert_response 404
-    assert_equal 'Page Not Found', response.body
+    assert_exception_raised ActionController::RoutingError, 'Page Not Found' do
+      get :render_html, :cms_path => 'doesnotexist'
+    end
   end
   
   def test_render_page_not_found_with_custom_404
@@ -66,9 +67,9 @@ class CmsContentControllerTest < ActionController::TestCase
   def test_render_page_with_no_site
     Cms::Site.destroy_all
     
-    get :render_html, :cms_path => ''
-    assert_response 404
-    assert_equal 'Site Not Found', response.body
+    assert_exception_raised ActionController::RoutingError, 'Site Not Found' do
+      get :render_html, :cms_path => ''
+    end
   end
   
   def test_render_page_with_no_layout
@@ -90,8 +91,10 @@ class CmsContentControllerTest < ActionController::TestCase
   def test_render_page_unpublished
     page = cms_pages(:default)
     page.update_attribute(:is_published, false)
-    get :render_html, :cms_path => ''
-    assert_response 404
+    
+    assert_exception_raised ActionController::RoutingError, 'Page Not Found' do
+      get :render_html, :cms_path => ''
+    end
   end
   
   def test_render_page_with_irb_disabled
@@ -135,7 +138,7 @@ class CmsContentControllerTest < ActionController::TestCase
   def test_render_css
     get :render_css, :site_id => cms_sites(:default).id, :identifier => cms_layouts(:default).identifier
     assert_response :success
-    assert_match %r{text\/css}, response.headers["Content-Type"]
+    assert_match 'text/css', response.content_type
     assert_equal cms_layouts(:default).css, response.body
   end
   
@@ -147,7 +150,7 @@ class CmsContentControllerTest < ActionController::TestCase
   def test_render_js
     get :render_js, :site_id => cms_sites(:default).id, :identifier => cms_layouts(:default).identifier
     assert_response :success
-    assert_match %r{text\/javascript}, response.headers["Content-Type"]
+    assert_equal 'text/javascript', response.content_type
     assert_equal cms_layouts(:default).js, response.body
   end
   
@@ -163,11 +166,23 @@ class CmsContentControllerTest < ActionController::TestCase
   end
 
   def test_render_sitemap_with_path
-    @request.host = 'test.path.host'
-    get :render_sitemap, :cms_path => cms_sites(:site_with_path).path, :format => :xml
+    site = cms_sites(:default)
+    site.update_attribute(:path, 'en')
+    
+    get :render_sitemap, :cms_path => site.path, :format => :xml
     assert_response :success
-    assert_equal cms_sites(:site_with_path), assigns(:cms_site)
-    assert !response.body.include?("<loc>"), "No pages, no loc's in the sitemap"
+    assert_equal cms_sites(:default), assigns(:cms_site)
+    assert_match '<loc>http://test.host/en/child-page</loc>', response.body
+  end
+  
+  def test_render_sitemap_with_path_invalid_with_single_site
+    site = cms_sites(:default)
+    site.update_attribute(:path, 'en')
+    
+    get :render_sitemap, :cms_path => 'fr', :format => :xml
+    assert_response :success
+    assert_equal cms_sites(:default), assigns(:cms_site)
+    assert_match '<loc>http://test.host/en/child-page</loc>', response.body
   end
 
   class TestRenderException

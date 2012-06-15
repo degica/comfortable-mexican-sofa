@@ -3,9 +3,9 @@ pt-BR:
   # -- Models ---------------------------------------------------------------
   attributes:
     label: Nome
+    slug: Identificador
     parent_id: Pai
     content: Conteúdo
-    slug: Identificador
     identifier: Identificador
   activerecord:
     models:
@@ -13,13 +13,16 @@ pt-BR:
       cms/layout: Leiaute
       cms/page: Página
       cms/snippet: Fragmento
+      cms/file: File
     attributes:
       cms/site:
+        identifier: Identificador
         hostname: Nome do Host
         path: Caminho
         locale: Idioma
         is_mirrored: Espelhado
       cms/layout:
+        identifier: Identificador
         label: Nome do Leiaute
         app_layout: Leiaute da Aplicação
         parent_id: Leiaute Pai
@@ -187,6 +190,7 @@ pt-BR:
         full_path: Caminho completo
         slug: Identificador
         update: Atualizar para esta revisão
+        current: Atual
       
     files:
       index:

@@ -122,26 +122,35 @@
 #cms_body ul.list li .item .toggle.open a {
   background-image: url(/assets/comfortable_mexican_sofa/arrow_bottom.gif);
 }
-#cms_body ul.list li .item .icon {
+#cms_body ul.list li .item .icon,
+#cms_body table.formatted td .icon {
   float: left;
   width: 28px;
   height: 28px;
   background: url(/assets/comfortable_mexican_sofa/icon_regular.gif);
 }
-#cms_body ul.list li .item .icon .dragger {
+#cms_body ul.list li .item .icon.draft,
+#cms_body table.formatted td .icon.draft {
+  background: url(/assets/comfortable_mexican_sofa/icon_draft.gif);
+}
+#cms_body ul.list li .item .icon .dragger,
+#cms_body table.formatted td .icon .dragger {
   width: 28px;
   height: 28px;
   background: url(/assets/comfortable_mexican_sofa/icon_move.gif);
   cursor: move;
   display: none;
 }
-#cms_body ul.list li .item .icon:hover .dragger {
+#cms_body ul.list li .item .icon:hover .dragger,
+#cms_body table.formatted td .icon:hover .dragger {
   display: block;
 }
-#cms_body ul.list li .item .icon .dragger span {
+#cms_body ul.list li .item .icon .dragger span,
+#cms_body table.formatted td .icon .dragger span {
   display: none;
 }
-#cms_body ul.list li .item .label {
+#cms_body ul.list li .item .label,
+#cms_body table.formatted td .label {
   margin-left: 32px;
   font-size: 14px;
   font-weight: bold;
@@ -155,7 +164,8 @@
   text-transform: uppercase;
   color: #888;
 }
-#cms_body ul.list li .item .label .sublabel {
+#cms_body ul.list li .item .label .sublabel,
+#cms_body table.formatted td .label .sublabel {
   font-size: 10px;
   font-weight: normal;
 }
@@ -172,6 +182,35 @@
 #cms_body ul.list li .item:hover {
   background-color: #fff;
 }
+/* -- Tables ------------------------------------------------------------ */
+#cms_body table.formatted {
+  width: 100%;
+}
+#cms_body table.formatted th, #cms_body table.formatted td {
+  white-space: nowrap;
+  padding: 6px;
+  background-color: #f1f1f1;
+  border-bottom: 2px solid #e6e6e6;
+  vertical-align: top;
+}
+#cms_body table.formatted th.main, #cms_body table.formatted td.main {
+  white-space: normal;
+  width: 100%;
+}
+#cms_body table.formatted th {
+  color: #000;
+  border-color: #9f9f9f;
+}
+#cms_body table.formatted tr:hover td {
+  background-color: #fff
+}
+#cms_body table.formatted tr td.action_links a {
+  opacity: 0.2;
+}
+#cms_body table.formatted tr:hover td.action_links a {
+  opacity: 1;
+}
+
 /* -- Missing Translations ---------------------------------------------- */
 #cms_body .translation_missing {
   text-decoration: blink;

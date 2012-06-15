@@ -8,6 +8,14 @@ class Cms::Layout < ActiveRecord::Base
   cms_is_mirrored
   cms_has_revisions_for :content, :css, :js
   
+  attr_accessible :label,
+                  :identifier,
+                  :content,
+                  :css,
+                  :js,
+                  :parent, :parent_id,
+                  :app_layout
+  
   # -- Relationships --------------------------------------------------------
   belongs_to :site
   has_many :pages, :dependent => :nullify
@@ -29,7 +37,7 @@ class Cms::Layout < ActiveRecord::Base
     :format     => { :with => /^\w[a-z0-9_-]*$/i }
     
   # -- Scopes ---------------------------------------------------------------
-  default_scope order(:position)
+  default_scope order('cms_layouts.position')
   
   # -- Class Methods --------------------------------------------------------
   # Tree-like structure for layouts
@@ -49,7 +57,7 @@ class Cms::Layout < ActiveRecord::Base
   def self.app_layouts_for_select
     Dir.glob(File.expand_path('app/views/layouts/**/*.html.*', Rails.root)).collect do |filename|
       filename.gsub!("#{File.expand_path('app/views/layouts', Rails.root)}/", '')
-      filename.split('/').last[0...1] == '_' ? nil : filename
+      filename.split('/').last[0...1] == '_' ? nil : filename.split('.').first
     end.compact.sort
   end
   
@@ -77,6 +85,7 @@ protected
   end
   
   def assign_position
+    return if self.position.to_i > 0
     max = self.site.layouts.where(:parent_id => self.parent_id).maximum(:position)
     self.position = max ? max + 1 : 0
   end

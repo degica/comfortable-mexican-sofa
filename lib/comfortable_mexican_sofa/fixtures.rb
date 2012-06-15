@@ -15,8 +15,8 @@ module ComfortableMexicanSofa::Fixtures
   def self.import_layouts(to_hostname, from_hostname = nil, path = nil, root = true, parent = nil, layout_ids = [])
     site = Cms::Site.find_or_create_by_hostname(to_hostname)
     unless path ||= find_fixtures_path((from_hostname || to_hostname), 'layouts')
-      $stdout.puts 'Cannot find Layout fixtures'
-      return
+      ComfortableMexicanSofa.logger.warn('Cannot find Layout fixtures')
+      return []
     end
     
     Dir.glob("#{path}/*").select{|f| File.directory?(f)}.each do |path|
@@ -28,7 +28,8 @@ module ComfortableMexicanSofa::Fixtures
         if layout.new_record? || File.mtime(file_path) > layout.updated_at
           attributes = YAML.load_file(file_path).try(:symbolize_keys!) || { }
           layout.label      = attributes[:label] || identifier.titleize
-          layout.app_layout = attributes[:app_layout] || parent.try(:app_layout) 
+          layout.app_layout = attributes[:app_layout] || parent.try(:app_layout)
+          layout.position   = attributes[:position] if attributes[:position]
         end
       elsif layout.new_record?
         layout.label      = identifier.titleize
@@ -56,10 +57,10 @@ module ComfortableMexicanSofa::Fixtures
       layout.parent = parent
       if layout.changed?
         if layout.save
-          $stdout.puts "[Fixtures] Saved Layout {#{layout.identifier}}"
+          ComfortableMexicanSofa.logger.warn("[Fixtures] Saved Layout {#{layout.identifier}}")
         else
-          $stdout.puts "[Fixtures] Failed to save Layout {#{layout.errors.inspect}}"
-          return
+          ComfortableMexicanSofa.logger.error("[Fixtures] Failed to save Layout {#{layout.errors.inspect}}")
+          next
         end
       end
       layout_ids << layout.id
@@ -71,7 +72,7 @@ module ComfortableMexicanSofa::Fixtures
     # removing all db entries that are not in fixtures
     if root
       site.layouts.where('id NOT IN (?)', layout_ids.uniq).each{ |l| l.destroy } 
-      $stdout.puts 'Imported Layouts!'
+      ComfortableMexicanSofa.logger.warn('Imported Layouts!')
     end
     
     # returning ids of layouts in fixtures
@@ -81,14 +82,14 @@ module ComfortableMexicanSofa::Fixtures
   def self.import_pages(to_hostname, from_hostname = nil, path = nil, root = true, parent = nil, page_ids = [])
     site = Cms::Site.find_or_create_by_hostname(to_hostname)
     unless path ||= find_fixtures_path((from_hostname || to_hostname), 'pages')
-      $stdout.puts 'Cannot find Page fixtures'
-      return
+      ComfortableMexicanSofa.logger.warn('Cannot find Page fixtures')
+      return []
     end
     
     Dir.glob("#{path}/*").select{|f| File.directory?(f)}.each do |path|
       slug = path.split('/').last
       page = if parent
-        parent.children.find_by_slug(slug) || parent.children.new(:slug => slug, :site => site)
+        parent.children.find_by_slug(slug) || site.pages.new(:parent => parent, :slug => slug)
       else
         site.pages.root || site.pages.new(:slug => slug)
       end
@@ -101,6 +102,7 @@ module ComfortableMexicanSofa::Fixtures
           page.layout = site.layouts.find_by_identifier(attributes[:layout]) || parent.try(:layout)
           page.target_page = site.pages.find_by_full_path(attributes[:target_page])
           page.is_published = attributes[:is_published].present?? attributes[:is_published] : true
+          page.position = attributes[:position] if attributes[:position]
         end
       elsif page.new_record?
         page.label = slug.titleize
@@ -108,10 +110,12 @@ module ComfortableMexicanSofa::Fixtures
       end
       
       # updating content
+      blocks_to_clear = page.blocks.collect(&:identifier)
       blocks_attributes = [ ]
       Dir.glob("#{path}/*.html").each do |file_path|
+        identifier = file_path.split('/').last.split('.').first
+        blocks_to_clear.delete(identifier)
         if page.new_record? || File.mtime(file_path) > page.updated_at
-          identifier = file_path.split('/').last.split('.').first
           blocks_attributes << {
             :identifier => identifier,
             :content    => File.open(file_path).read
@@ -119,14 +123,22 @@ module ComfortableMexicanSofa::Fixtures
         end
       end
       
+      # clearing removed blocks
+      blocks_to_clear.each do |identifier|
+        blocks_attributes << {
+          :identifier => identifier,
+          :content    => nil
+        }
+      end
+      
       # saving
       page.blocks_attributes = blocks_attributes if blocks_attributes.present?
       if page.changed? || blocks_attributes.present?
         if page.save
-          $stdout.puts "[Fixtures] Saved Page {#{page.full_path}}"
+          ComfortableMexicanSofa.logger.warn("[Fixtures] Saved Page {#{page.full_path}}")
         else
-          $stdout.puts "[Fixtures] Failed to save Page {#{page.errors.inspect}}"
-          return
+          ComfortableMexicanSofa.logger.warn("[Fixtures] Failed to save Page {#{page.errors.inspect}}")
+          next
         end
       end
       page_ids << page.id
@@ -138,7 +150,7 @@ module ComfortableMexicanSofa::Fixtures
     # removing all db entries that are not in fixtures
     if root
       site.pages.where('id NOT IN (?)', page_ids.uniq).each{ |p| p.destroy }
-      $stdout.puts 'Imported Pages!'
+      ComfortableMexicanSofa.logger.warn('Imported Pages!')
     end
     
     # returning ids of layouts in fixtures
@@ -148,8 +160,8 @@ module ComfortableMexicanSofa::Fixtures
   def self.import_snippets(to_hostname, from_hostname = nil)
     site = Cms::Site.find_or_create_by_hostname(to_hostname)
     unless path = find_fixtures_path((from_hostname || to_hostname), 'snippets')
-      $stdout.puts 'Cannot find Snippet fixtures'
-      return
+      ComfortableMexicanSofa.logger.warn('Cannot find Snippet fixtures')
+      return []
     end
     
     snippet_ids = []
@@ -177,10 +189,10 @@ module ComfortableMexicanSofa::Fixtures
       # saving
       if snippet.changed?
         if snippet.save
-          $stdout.puts "[Fixtures] Saved Snippet {#{snippet.identifier}}"
+          ComfortableMexicanSofa.logger.warn("[Fixtures] Saved Snippet {#{snippet.identifier}}")
         else
-          $stdout.puts "[Fixtures] Failed to save Snippet {#{snippet.errors.inspect}}"
-          return
+          ComfortableMexicanSofa.logger.warn("[Fixtures] Failed to save Snippet {#{snippet.errors.inspect}}")
+          next
         end
       end
       snippet_ids << snippet.id
@@ -188,7 +200,7 @@ module ComfortableMexicanSofa::Fixtures
     
     # removing all db entries that are not in fixtures
     site.snippets.where('id NOT IN (?)', snippet_ids).each{ |s| s.destroy }
-    $stdout.puts 'Imported Snippets!'
+    ComfortableMexicanSofa.logger.warn('Imported Snippets!')
   end
   
   def self.export_layouts(from_hostname, to_hostname = nil)
@@ -205,7 +217,8 @@ module ComfortableMexicanSofa::Fixtures
         f.write({
           'label'       => layout.label,
           'app_layout'  => layout.app_layout,
-          'parent'      => layout.parent.try(:identifier)
+          'parent'      => layout.parent.try(:identifier),
+          'position'    => layout.position
         }.to_yaml)
       end
       open(File.join(layout_path, 'content.html'), 'w') do |f|
@@ -237,7 +250,8 @@ module ComfortableMexicanSofa::Fixtures
           'layout'        => page.layout.try(:identifier),
           'parent'        => page.parent && (page.parent.slug.present?? page.parent.slug : 'index'),
           'target_page'   => page.target_page.try(:slug),
-          'is_published'  => page.is_published
+          'is_published'  => page.is_published,
+          'position'      => page.position
         }.to_yaml)
       end
       page.blocks_attributes.each do |block|

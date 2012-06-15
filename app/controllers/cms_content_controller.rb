@@ -5,7 +5,8 @@ class CmsContentController < ApplicationController
   
   before_filter :load_cms_site,
                 :load_fixtures
-  before_filter :load_cms_page, :authenticate,
+  before_filter :load_cms_page,
+                :authenticate,
     :only => :render_html
   before_filter :load_cms_layout,
     :only => [:render_css, :render_js]
@@ -13,13 +14,14 @@ class CmsContentController < ApplicationController
   def render_html(status = 200)
     if @cms_layout = @cms_page.layout
       app_layout = (@cms_layout.app_layout.blank? || request.xhr?) ? false : @cms_layout.app_layout
-      render :inline => @cms_page.content, :layout => app_layout, :status => status
+      render :inline => @cms_page.content, :layout => app_layout, :status => status, :content_type => 'text/html'
     else
       render :text => I18n.t('cms.content.layout_not_found'), :status => 404
     end
   end
 
   def render_sitemap
+    render
   end
 
   def render_css
@@ -46,24 +48,25 @@ protected
     
     if @cms_site
       if params[:cms_path].present?
-        params[:cms_path].gsub!(/^#{@cms_site.path}/, '').gsub!(/^\//, '')
+        params[:cms_path].gsub!(/^#{@cms_site.path}/, '')
+        params[:cms_path].to_s.gsub!(/^\//, '')
       end
       I18n.locale = @cms_site.locale
     else
       I18n.locale = I18n.default_locale
-      render :text => I18n.t('cms.content.site_not_found'), :status => 404
+      raise ActionController::RoutingError.new('Site Not Found')
     end
   end
   
   def load_cms_page
     @cms_page = @cms_site.pages.published.find_by_full_path!("/#{params[:cms_path]}")
-    return redirect_to(@cms_page.target_page.full_path) if @cms_page.target_page
+    return redirect_to(@cms_page.target_page.url) if @cms_page.target_page
     
   rescue ActiveRecord::RecordNotFound
     if @cms_page = @cms_site.pages.published.find_by_full_path('/404')
       render_html(404)
     else
-      render :text => I18n.t('cms.content.page_not_found'), :status => 404
+      raise ActionController::RoutingError.new('Page Not Found')
     end
   end
 

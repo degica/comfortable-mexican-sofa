@@ -1,10 +1,11 @@
-# ComfortableMexicanSofa (Rails 3 CMS Engine) [![Build Status](https://secure.travis-ci.org/comfy/comfortable-mexican-sofa.png)](http://travis-ci.org/comfy/comfortable-mexican-sofa) [![Dependency Status](https://gemnasium.com/comfy/comfortable-mexican-sofa.png)](https://gemnasium.com/comfy/comfortable-mexican-sofa)
+# ComfortableMexicanSofa (Rails 3 CMS Engine) 
+[![Build Status](https://secure.travis-ci.org/comfy/comfortable-mexican-sofa.png)](http://travis-ci.org/comfy/comfortable-mexican-sofa) [![Dependency Status](https://gemnasium.com/comfy/comfortable-mexican-sofa.png)](https://gemnasium.com/comfy/comfortable-mexican-sofa)
 
 ComfortableMexicanSofa is a powerful CMS Engine for your Rails 3 applications.
 
 Features
 --------
-* Simple integration with Rails 3.0 and 3.1 apps
+* Simple integration with Rails 3 apps (with or without assets pipeline)
 * Build your application in Rails, not in CMS
 * Powerful page templating capability using [Tags](https://github.com/comfy/comfortable-mexican-sofa/wiki/Tags)
 * [Multiple Sites](https://github.com/comfy/comfortable-mexican-sofa/wiki/Sites) from a single installation
@@ -23,7 +24,7 @@ Add gem definition to your Gemfile:
 Then from the Rails project's root run:
     
     bundle install
-    rails generate cms
+    rails generate comfy:cms
     rake db:migrate
     
 When upgrading from the older version please take a look at [Upgrading ComfortableMexicanSofa](https://github.com/comfy/comfortable-mexican-sofa/wiki/Upgrading-ComfortableMexicanSofa)
@@ -50,6 +51,7 @@ Once you have a layout, you may start creating pages and populating content. It'
 For more information please [see Wiki pages](https://github.com/comfy/comfortable-mexican-sofa/wiki).
 
 ![Sofa's Page Edit View](https://github.com/comfy/comfortable-mexican-sofa/raw/master/doc/preview.png)
+
 
 ComfortableMexicanSofa is released under the [MIT license](https://github.com/comfy/comfortable-mexican-sofa/raw/master/LICENSE) 
 

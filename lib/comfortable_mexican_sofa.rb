@@ -57,6 +57,14 @@ module ComfortableMexicanSofa
         klass.establish_connection "#{ComfortableMexicanSofa.config.database_config}_#{Rails.env}"
       end
     end
+
+    def logger=(new_logger)
+      @logger = new_logger
+    end
+
+    def logger
+      @logger ||= Rails.logger
+    end
     
   end
 end
