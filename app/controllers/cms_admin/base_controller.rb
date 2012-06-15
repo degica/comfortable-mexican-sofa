@@ -27,12 +27,18 @@ class CmsAdmin::BaseController < ApplicationController
 protected
   
   def load_admin_site
-    if @site = Cms::Site.find_by_id(params[:site_id] || session[:site_id]) || Cms::Site.first
+    if @site = Cms::Site.find_by_id(params[:site_id] || session[:site_id])
       session[:site_id] = @site.id
     else
       I18n.locale = ComfortableMexicanSofa.config.admin_locale || I18n.default_locale
       flash[:error] = I18n.t('cms.base.site_not_found')
-      return redirect_to(new_cms_admin_site_path)
+      return redirect_to(cms_admin_sites_path)
+    end
+    # if we are trying to select a site, but don't have it in the available, 
+    # redirect back to the site selection
+    if @site && available_sites.detect { |x| x.id == @site.id }.blank?
+      @site = nil
+      return redirect_to(cms_admin_sites_path)
     end
   end
 
