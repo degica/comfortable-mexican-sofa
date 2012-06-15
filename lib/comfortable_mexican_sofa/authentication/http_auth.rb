@@ -22,4 +22,8 @@ module ComfortableMexicanSofa::HttpAuth
     end
   end
 
+  # The list of sites this authorization is allowed to edit.
+  def available_sites
+    Cms::Site.all
+  end
 end
