@@ -79,7 +79,7 @@
 }
 
 div.CodeMirror-selected { background: #d9d9d9; }
-.CodeMirror-focused div.CodeMirror-selected { background: #eee; }
+.CodeMirror-focused div.CodeMirror-selected { background: #FF0066; }
 
 .CodeMirror-searching {
   background: #ffa;
