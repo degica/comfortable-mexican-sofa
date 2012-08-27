@@ -59,7 +59,7 @@ module ComfortableMexicanSofa::RenderMethods
         if @cms_layout = @cms_site && @cms_site.layouts.find_by_identifier(identifier)
           cms_app_layout = @cms_layout.try(:app_layout)
           cms_page = @cms_site.pages.build(:layout => @cms_layout)
-          cms_blocks = options.delete(:cms_blocks) || { :content => render_to_string(:layout => false)}
+          cms_blocks = options.delete(:cms_blocks) || { :content => render_to_string(render_to_string_options(options))}
           cms_blocks.each do |identifier, value|
             content = if value.is_a?(Hash)
               render_to_string(value.keys.first.to_sym => value[value.keys.first], :layout => false)
@@ -79,6 +79,13 @@ module ComfortableMexicanSofa::RenderMethods
         super(options, locals, &block)
       end
     end
+  end
+
+  private
+  def render_to_string_options(options)
+    opts = { :layout => false }
+    opts[:action] = options[:action] unless options[:action].nil?
+    opts
   end
 end
 
