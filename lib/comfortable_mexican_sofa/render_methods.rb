@@ -1,7 +1,7 @@
 module ComfortableMexicanSofa::RenderMethods
-  
+
   def self.included(base)
-    
+
     # If application controller doesn't have template associated with it
     # CMS will attempt to find one. This is so you don't have to explicitly
     # call render :cms_page => '/something'
@@ -12,14 +12,14 @@ module ComfortableMexicanSofa::RenderMethods
         raise e
       end
     end
-    
+
     # Now you can render cms_page simply by calling:
     #   render :cms_page => '/path/to/page'
     # This way application controllers can use CMS content while populating
     # instance variables that can be used in partials (that are included by
     # by the cms page and/or layout)
     #
-    # Or how about not worrying about setting up CMS pages and rendering 
+    # Or how about not worrying about setting up CMS pages and rendering
     # application view using a CMS layout?
     #   render :cms_layout => 'layout_slug', :cms_blocks => {
     #     :block_label_a => 'content text',
@@ -33,15 +33,15 @@ module ComfortableMexicanSofa::RenderMethods
     # Site is loaded automatically based on the request. However you can force
     # it by passing :cms_site parameter with site's slug. For example:
     #   render :cms_page => '/path/to/page', :cms_site => 'default'
-    # 
+    #
     def render(options = {}, locals = {}, &block)
-      
+
       if options.is_a?(Hash) && identifier = options.delete(:cms_site)
         unless @cms_site = Cms::Site.find_by_identifier(identifier)
           raise ComfortableMexicanSofa::MissingSite.new(identifier)
         end
       end
-      
+
       if options.is_a?(Hash) && path = options.delete(:cms_page)
         @cms_site ||= Cms::Site.find_site(request.host.downcase, request.fullpath)
         if @cms_page = @cms_site && @cms_site.pages.find_by_full_path(path)
@@ -53,7 +53,7 @@ module ComfortableMexicanSofa::RenderMethods
         else
           raise ComfortableMexicanSofa::MissingPage.new(path)
         end
-        
+
       elsif options.is_a?(Hash) && identifier = options.delete(:cms_layout)
         @cms_site ||= Cms::Site.find_site(request.host.downcase, request.fullpath)
         if @cms_layout = @cms_site && @cms_site.layouts.find_by_identifier(identifier)
@@ -74,7 +74,7 @@ module ComfortableMexicanSofa::RenderMethods
         else
           raise ComfortableMexicanSofa::MissingLayout.new(identifier)
         end
-        
+
       else
         super(options, locals, &block)
       end
