@@ -42,6 +42,7 @@ Rails.application.routes.draw do
         :format       => :xml
     end
     
+    get '/' => :render_html,  :as => 'cms_html',  :path => "(*cms_path).(:format)"
     get '/' => :render_html,  :as => 'cms_html',  :path => "(*cms_path)"
   end
   
