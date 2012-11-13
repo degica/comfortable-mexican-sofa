@@ -5,7 +5,7 @@ class ComfortableMexicanSofa::Tag::Helper
   
   def self.regex_tag_signature(identifier = nil)
     identifier ||= /[\w\-]+/
-    /\{\{\s*cms:helper:(#{identifier}):?(.*?)\s*\}\}/
+    /\{\{\s*cms:helper:(#{identifier}):?(.*?)\s*\}\}/m
   end
   
   def content
