@@ -45,9 +45,7 @@ protected
   # gotta reload every single page. Kinda sucks, but might be ok unless there
   # are hundreds of pages.
   def clear_cached_page_content
-    site.pages.all.each do |p|
-      Cms::Page.where(:id => p.id).update_all(:content => p.content(true))
-    end
+    site.layouts.each(&:save!)
   end
   
   def assign_position
