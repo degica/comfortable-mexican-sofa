@@ -89,7 +89,7 @@ $.CMS = function(){
       $('textarea[data-cm-mode]').each(function(i, element){
         CodeMirror.fromTextArea(element, {
           mode:           $(element).data('cm-mode'),
-          lineWrapping:   true,
+          lineWrapping:   false,
           autoCloseTags:  true,
           lineNumbers:    true
         });
