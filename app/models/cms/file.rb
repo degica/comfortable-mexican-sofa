@@ -38,6 +38,36 @@ class Cms::File < ActiveRecord::Base
   # -- Validations ----------------------------------------------------------
   validates :site_id, :presence => true
   validates_attachment_presence :file
+  validates_attachment_file_type :file, :matches => [
+    /image/,
+    /audio/,
+    /text/,
+    /video/,
+    %r[application/font-woff],
+    %r[application/javascript],
+    %r[application/msword],
+    %r[application/octet-stream],
+    %r[application/pdf],
+    %r[application/rtf],
+    %r[application/vnd.android.package-archive],
+    %r[application/vnd.ms-fontobject],
+    %r[application/vnd.ms-office],
+    %r[application/vnd.openxmlformats-officedocument],
+    %r[application/x-apple-diskimage],
+    %r[application/x-font-opentype],
+    %r[application/x-font-truetype],
+    %r[application/x-javascript],
+    %r[application/x-lzh-compressed],
+    %r[application/x-msdos-program],
+    %r[application/x-msdownload],
+    %r[application/x-msi],
+    %r[application/x-rar-compressed],
+    %r[application/x-shockwave-flash],
+    %r[application/x-zip-compressed],
+    %r[application/xml],
+    %r[application/zip],
+    %r[Composite Document File V2 Document]
+  ]
   
   # -- Callbacks ------------------------------------------------------------
   before_save   :assign_label
